@@ -42,7 +42,7 @@ public class MinitouchController {
                 
                 // 5. THỬ KẾT NỐI SOCKET VỚI CƠ CHẾ RETRY
                 boolean connected = false;
-                for (int i = 0; i < 5; i++) {
+                for (int i = 0; i < 3; i++) {
                     try {
                         Thread.sleep(1000);
                         socket = new Socket("127.0.0.1", 1111);
@@ -57,7 +57,7 @@ public class MinitouchController {
                 if (connected) {
                     Log.i(TAG, "Minitouch đã sẵn sàng!");
                 } else {
-                    Log.e(TAG, "Lỗi: Không thể kết nối tới Minitouch sau 5 lần thử!");
+                    Log.e(TAG, "Lỗi: Không thể kết nối tới Minitouch sau 3 lần thử!");
                     close();
                 }
 
