@@ -3,8 +3,6 @@ package com.my.procty;
 import android.content.Context;
 import android.util.Log;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.Socket;
@@ -16,21 +14,13 @@ public class MinitouchController {
     private static Process process = null;
 
     public static void init(final Context context) {
-        // CHẠY TRÊN LUỒNG RIÊNG ĐỂ TRÁNH CHẶN MAIN THREAD
         new Thread(() -> {
             try {
-                // 1. Giải nén file minitouch từ assets
-                File minitouchFile = new File(context.getFilesDir(), "minitouch");
+                // 1. TRỎ THẲNG TỚI FILE TRONG THƯ MỤC DOWNLOAD
+                File minitouchFile = new File("/storage/emulated/0/Download/minitouch");
                 if (!minitouchFile.exists()) {
-                    InputStream is = context.getAssets().open("minitouch");
-                    FileOutputStream fos = new FileOutputStream(minitouchFile);
-                    byte[] buffer = new byte[1024];
-                    int length;
-                    while ((length = is.read(buffer)) > 0) {
-                        fos.write(buffer, 0, length);
-                    }
-                    fos.close();
-                    is.close();
+                    Log.e(TAG, "Không tìm thấy file minitouch trong thư mục Download!");
+                    return;
                 }
 
                 // 2. Dùng Reflection gọi Shizuku.newProcess
@@ -50,15 +40,15 @@ public class MinitouchController {
                 String startCmd = minitouchFile.getAbsolutePath() + " -i 127.0.0.1";
                 process = (Process) newProcessMethod.invoke(null, new String[]{"sh", "-c", startCmd}, null, null);
                 
-                // 5. THỬ KẾT NỐI SOCKET VỚI CƠ CHẾ RETRY (THỬ LẠI)
+                // 5. THỬ KẾT NỐI SOCKET VỚI CƠ CHẾ RETRY
                 boolean connected = false;
                 for (int i = 0; i < 5; i++) {
                     try {
-                        Thread.sleep(1000); // Đợi 1 giây
+                        Thread.sleep(1000);
                         socket = new Socket("127.0.0.1", 1111);
                         outputStream = socket.getOutputStream();
                         connected = true;
-                        break; // Kết nối thành công thì thoát vòng lặp
+                        break;
                     } catch (Exception e) {
                         Log.w(TAG, "Thử kết nối lần " + (i + 1) + " thất bại: " + e.getMessage());
                     }
@@ -100,4 +90,4 @@ public class MinitouchController {
         outputStream = null;
         process = null;
     }
-            }
+                                     }
